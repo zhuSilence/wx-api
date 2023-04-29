@@ -43,6 +43,8 @@ public class WxUser implements Serializable {
     private String subscribeScene;
     private String qrSceneStr;
 
+    private String extraInfo;
+
     public WxUser() {
     }
 
@@ -81,5 +83,11 @@ public class WxUser implements Serializable {
     @Override
     public String toString() {
         return Json.toJsonString(this);
+    }
+
+    @Data
+    public static class ExtraInfo{
+        // openApi 剩余额度
+        private Integer openApiCount;
     }
 }

@@ -24,6 +24,15 @@ public interface WxUserService extends IService<WxUser> {
     WxUser refreshUserInfo(String openid,String appid);
 
     /**
+     * 设置用户的 OpenAI 额度
+     * @param openid
+     * @param appid
+     * @param count
+     * @return
+     */
+    WxUser updateUserOpenAiCount(String openid,String appid, int count);
+
+    /**
      * 异步批量更新用户信息
      * @param openidList
      */
@@ -46,7 +55,7 @@ public interface WxUserService extends IService<WxUser> {
      * 同步用户列表
      */
     void syncWxUsers(String appid);
-    
+
     /**
      * 通过传入的openid列表，同步用户列表
      * @param openids

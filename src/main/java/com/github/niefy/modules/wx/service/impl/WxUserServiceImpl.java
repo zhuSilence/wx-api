@@ -1,5 +1,6 @@
 package com.github.niefy.modules.wx.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -84,6 +85,37 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 		return null;
     }
 
+	@Override
+	public WxUser updateUserOpenAiCount(String openid,String appid, int count) {
+		try {
+			// 获取微信用户基本信息
+			logger.info("更新用户信息，openid={}",openid);
+			wxMpService.switchover(appid);
+			WxUser wxUser = this.getOne(new QueryWrapper<WxUser>()
+					.eq(StringUtils.hasText(appid), "appid", appid)
+					.eq(StringUtils.hasText(openid), "openid", openid)
+			);
+			if (null == wxUser) {
+				WxUser user = new WxUser(openid);
+				user.setAppid(appid);
+				WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
+				extraInfo.setOpenApiCount(count);
+				user.setExtraInfo(JSONObject.toJSONString(extraInfo));
+				this.saveOrUpdate(user);
+				return user;
+			} else {
+				WxUser.ExtraInfo newExtraInfo = JSONObject.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
+				newExtraInfo.setOpenApiCount(count);
+				wxUser.setExtraInfo(JSONObject.toJSONString(newExtraInfo));
+				this.saveOrUpdate(wxUser);
+				return wxUser;
+			}
+		} catch (Exception e) {
+			logger.error("更新用户信息失败,openid:{}",openid);
+		}
+		return null;
+	}
+
     /**
 	 * 异步批量同步用户信息
 	 * @param openidList
@@ -116,7 +148,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     public void unsubscribe(String openid) {
         userMapper.unsubscribe(openid);
     }
-    
+
     /**
 	 * 同步用户列表,公众号一次拉取调用最多拉取10000个关注者的OpenID，可以通过传入nextOpenid参数多次拉取
 	 */
