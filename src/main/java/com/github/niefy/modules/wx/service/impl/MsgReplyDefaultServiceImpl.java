@@ -2,6 +2,7 @@ package com.github.niefy.modules.wx.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.niefy.modules.wx.entity.MsgReplyRule;
 import com.github.niefy.modules.wx.entity.WxMsg;
 import com.github.niefy.modules.wx.service.MsgReplyDefaultService;
 import com.github.niefy.modules.wx.service.MsgReplyRuleService;
@@ -48,13 +49,13 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
      * @return 是否已自动回复，无匹配规则则不自动回复
      */
     @Override
-    public WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String keywords) {
+    public WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String fromUser, String keywords) {
         try {
-//            List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(appid, exactMatch, keywords);
-//            if (rules.isEmpty()) {
-//                return null;
-//            }
-            return this.replyText(toUser, "你好，感谢关注！");
+            List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(appid, exactMatch, keywords);
+            if (rules.isEmpty()) {
+                return this.replyText(toUser, fromUser, "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
+            }
+            return this.reply(toUser, fromUser, rules.get(0).getReplyType(), rules.get(0).getReplyContent());
         } catch (Exception e) {
             log.error("自动回复出错：", e);
         }
@@ -62,38 +63,38 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
     }
 
     @Override
-    public WxMpXmlOutMessage replyText(String toUser, String content) throws WxErrorException {
+    public WxMpXmlOutMessage replyText(String toUser, String fromUser, String content) throws WxErrorException {
         JSONObject json = new JSONObject().fluentPut("content", content);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.TEXT, toUser, json));
-        return WxMpXmlOutMessage.TEXT().content(content).toUser(toUser).build();
+        return WxMpXmlOutMessage.TEXT().content(content).toUser(toUser).fromUser(fromUser).build();
     }
 
     @Override
-    public WxMpXmlOutMessage replyImage(String toUser, String mediaId) throws WxErrorException {
+    public WxMpXmlOutMessage replyImage(String toUser, String fromUser, String mediaId) throws WxErrorException {
         JSONObject json = new JSONObject().fluentPut("mediaId", mediaId);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.IMAGE, toUser, json));
-        return WxMpXmlOutMessage.IMAGE().mediaId(mediaId).toUser(toUser).build();
+        return WxMpXmlOutMessage.IMAGE().mediaId(mediaId).toUser(toUser).fromUser(fromUser).build();
     }
 
     @Override
-    public WxMpXmlOutMessage replyVoice(String toUser, String mediaId) throws WxErrorException {
+    public WxMpXmlOutMessage replyVoice(String toUser, String fromUser, String mediaId) throws WxErrorException {
         JSONObject json = new JSONObject().fluentPut("mediaId", mediaId);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.VOICE, toUser, json));
-        return WxMpXmlOutMessage.VOICE().mediaId(mediaId).toUser(toUser).build();
+        return WxMpXmlOutMessage.VOICE().mediaId(mediaId).toUser(toUser).fromUser(fromUser).build();
     }
 
     @Override
-    public WxMpXmlOutMessage replyVideo(String toUser, String mediaId) throws WxErrorException {
+    public WxMpXmlOutMessage replyVideo(String toUser, String fromUser, String mediaId) throws WxErrorException {
         JSONObject json = new JSONObject().fluentPut("mediaId", mediaId);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.VIDEO, toUser, json));
-        return WxMpXmlOutMessage.VIDEO().mediaId(mediaId).toUser(toUser).build();
+        return WxMpXmlOutMessage.VIDEO().mediaId(mediaId).toUser(toUser).fromUser(fromUser).build();
     }
 
     @Override
-    public WxMpXmlOutMessage replyMusic(String toUser, String musicInfoJson) throws WxErrorException {
+    public WxMpXmlOutMessage replyMusic(String toUser, String fromUser, String musicInfoJson) throws WxErrorException {
         JSONObject json = JSON.parseObject(musicInfoJson);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.IMAGE, toUser, json));
-        return WxMpXmlOutMessage.MUSIC().toUser(toUser)
+        return WxMpXmlOutMessage.MUSIC().toUser(toUser).fromUser(fromUser)
                 .musicUrl(json.getString("musicurl"))
                 .hqMusicUrl(json.getString("hqmusicurl"))
                 .title(json.getString("title"))
@@ -110,7 +111,7 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
      * @throws WxErrorException
      */
     @Override
-    public WxMpXmlOutMessage replyNews(String toUser, String newsInfoJson) throws WxErrorException {
+    public WxMpXmlOutMessage replyNews(String toUser, String fromUser, String newsInfoJson) throws WxErrorException {
         WxMpKefuMessage.WxArticle wxArticle = JSON.parseObject(newsInfoJson, WxMpKefuMessage.WxArticle.class);
         wxMsgService.addWxMsg(WxMsg.buildOutMsg(WxConsts.KefuMsgType.NEWS, toUser, JSON.parseObject(newsInfoJson)));
 
@@ -120,7 +121,7 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
         item.setTitle(wxArticle.getTitle());
         item.setUrl(wxArticle.getUrl());
 
-        return WxMpXmlOutMessage.NEWS().toUser(toUser).addArticle(item).build();
+        return WxMpXmlOutMessage.NEWS().toUser(toUser).fromUser(fromUser).addArticle(item).build();
     }
 
     /**
@@ -131,23 +132,23 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
      * @throws WxErrorException
      */
     @Override
-    public WxMpXmlOutMessage replyMpNews(String toUser, String mediaId) throws WxErrorException {
+    public WxMpXmlOutMessage replyMpNews(String toUser, String fromUser, String mediaId) throws WxErrorException {
 
         return null;
     }
 
     @Override
-    public WxMpXmlOutMessage replyWxCard(String toUser, String cardId) throws WxErrorException {
+    public WxMpXmlOutMessage replyWxCard(String toUser, String fromUser, String cardId) throws WxErrorException {
         return null;
     }
 
     @Override
-    public WxMpXmlOutMessage replyMiniProgram(String toUser, String miniProgramInfoJson) throws WxErrorException {
+    public WxMpXmlOutMessage replyMiniProgram(String toUser, String fromUser, String miniProgramInfoJson) throws WxErrorException {
         return null;
     }
 
     @Override
-    public WxMpXmlOutMessage replyMsgMenu(String toUser, String msgMenusJson) throws WxErrorException {
+    public WxMpXmlOutMessage replyMsgMenu(String toUser, String fromUser, String msgMenusJson) throws WxErrorException {
         return null;
     }
 

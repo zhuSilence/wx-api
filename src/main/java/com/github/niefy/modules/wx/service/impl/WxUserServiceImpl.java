@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,6 +99,8 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			if (null == wxUser) {
 				WxUser user = new WxUser(openid);
 				user.setAppid(appid);
+				user.setSubscribe(true);
+				user.setSubscribeTime(new Date());
 				WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
 				extraInfo.setOpenApiCount(count);
 				user.setExtraInfo(JSONObject.toJSONString(extraInfo));

@@ -24,30 +24,30 @@ public interface MsgReplyDefaultService {
      * @param keywords   匹配关键词
      * @return 是否已自动回复，无匹配规则则不自动回复
      */
-    WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String keywords);
+    WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String fromUser, String keywords);
 
-    default WxMpXmlOutMessage reply(String toUser, String replyType, String replyContent){
+    default WxMpXmlOutMessage reply(String toUser, String fromUser, String replyType, String replyContent){
         try {
             if (WxConsts.KefuMsgType.TEXT.equals(replyType)) {
-                return this.replyText(toUser, replyContent);
+                return this.replyText(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.IMAGE.equals(replyType)) {
-                return this.replyImage(toUser, replyContent);
+                return this.replyImage(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.VOICE.equals(replyType)) {
-                return this.replyVoice(toUser, replyContent);
+                return this.replyVoice(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.VIDEO.equals(replyType)) {
-                return this.replyVideo(toUser, replyContent);
+                return this.replyVideo(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.MUSIC.equals(replyType)) {
-                return this.replyMusic(toUser, replyContent);
+                return this.replyMusic(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.NEWS.equals(replyType)) {
-                return this.replyNews(toUser, replyContent);
+                return this.replyNews(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.MPNEWS.equals(replyType)) {
-                return this.replyMpNews(toUser, replyContent);
+                return this.replyMpNews(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.WXCARD.equals(replyType)) {
-                return this.replyWxCard(toUser, replyContent);
+                return this.replyWxCard(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.MINIPROGRAMPAGE.equals(replyType)) {
-                return this.replyMiniProgram(toUser, replyContent);
+                return this.replyMiniProgram(toUser, fromUser, replyContent);
             } else if (WxConsts.KefuMsgType.MSGMENU.equals(replyType)) {
-                return this.replyMsgMenu(toUser, replyContent);
+                return this.replyMsgMenu(toUser, fromUser, replyContent);
             }
         } catch (Exception e) {
             logger.error("自动回复出错：", e);
@@ -58,52 +58,52 @@ public interface MsgReplyDefaultService {
     /**
      * 回复文字消息
      */
-    WxMpXmlOutMessage replyText(String toUser, String replyContent) throws WxErrorException;
+    WxMpXmlOutMessage replyText(String toUser, String fromUser, String replyContent) throws WxErrorException;
 
     /**
      * 回复图片消息
      */
-    WxMpXmlOutMessage replyImage(String toUser, String mediaId) throws WxErrorException;
+    WxMpXmlOutMessage replyImage(String toUser, String fromUser, String mediaId) throws WxErrorException;
 
     /**
      * 回复录音消息
      */
-    WxMpXmlOutMessage replyVoice(String toUser, String mediaId) throws WxErrorException;
+    WxMpXmlOutMessage replyVoice(String toUser, String fromUser, String mediaId) throws WxErrorException;
 
     /**
      * 回复视频消息
      */
-    WxMpXmlOutMessage replyVideo(String toUser, String mediaId) throws WxErrorException;
+    WxMpXmlOutMessage replyVideo(String toUser, String fromUser, String mediaId) throws WxErrorException;
 
     /**
      * 回复音乐消息
      */
-    WxMpXmlOutMessage replyMusic(String toUser, String mediaId) throws WxErrorException;
+    WxMpXmlOutMessage replyMusic(String toUser, String fromUser, String mediaId) throws WxErrorException;
 
     /**
      * 回复图文消息（点击跳转到外链）
      * 图文消息条数限制在1条以内
      */
-    WxMpXmlOutMessage replyNews(String toUser, String newsInfoJson) throws WxErrorException;
+    WxMpXmlOutMessage replyNews(String toUser, String fromUser, String newsInfoJson) throws WxErrorException;
 
     /**
      * 回复公众号文章消息（点击跳转到图文消息页面）
      * 图文消息条数限制在1条以内
      */
-    WxMpXmlOutMessage replyMpNews(String toUser, String mediaId) throws WxErrorException;
+    WxMpXmlOutMessage replyMpNews(String toUser, String fromUser, String mediaId) throws WxErrorException;
 
     /**
      * 回复卡券消息
      */
-    WxMpXmlOutMessage replyWxCard(String toUser, String cardId) throws WxErrorException;
+    WxMpXmlOutMessage replyWxCard(String toUser, String fromUser, String cardId) throws WxErrorException;
 
     /**
      * 回复小程序消息
      */
-    WxMpXmlOutMessage replyMiniProgram(String toUser, String miniProgramInfoJson) throws WxErrorException;
+    WxMpXmlOutMessage replyMiniProgram(String toUser, String fromUser, String miniProgramInfoJson) throws WxErrorException;
 
     /**
      * 回复菜单消息
      */
-    WxMpXmlOutMessage replyMsgMenu(String toUser, String msgMenusJson) throws WxErrorException;
+    WxMpXmlOutMessage replyMsgMenu(String toUser, String fromUser, String msgMenusJson) throws WxErrorException;
 }
