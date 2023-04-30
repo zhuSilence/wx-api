@@ -31,7 +31,7 @@ public class SubscribeHandler extends AbstractHandler {
         this.logger.info("new user subscribe OPENID is : " + wxMessage.getFromUser() + "，eventKye is ：" + wxMessage.getEventKey());
         String appid = WxMpConfigStorageHolder.get();
         this.logger.info("appid:{}", appid);
-        userService.updateUserOpenAiCount(wxMessage.getFromUser(), appid, 10);
+        userService.initSubScribe(wxMessage.getFromUser(), appid);
         return msgReplyDefaultService.tryAutoReply(appid, true, wxMessage.getFromUser(), wxMessage.getToUser(), "subscribe");
     }
 

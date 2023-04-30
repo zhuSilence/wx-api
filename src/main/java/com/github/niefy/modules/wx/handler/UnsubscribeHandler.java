@@ -30,7 +30,7 @@ public class UnsubscribeHandler extends AbstractHandler {
         this.logger.info("取消关注用户 OPENID: " + openid + " APPID: " + appid);
 
         userService.updateUserOpenAiCount(openid, appid, 0);
-        userService.unsubscribe(openid);
+        userService.unsubscribe(openid, appid);
         return null;
     }
 

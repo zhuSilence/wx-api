@@ -4,6 +4,7 @@ import com.github.niefy.common.utils.*;
 import com.github.niefy.modules.sys.service.SysLogService;
 import com.github.niefy.modules.wx.entity.WxUser;
 import com.github.niefy.modules.wx.form.WxH5OuthrizeForm;
+import com.github.niefy.modules.wx.service.WxUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +35,9 @@ public class WxAuthController {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     SysLogService sysLogService;
+
+    @Autowired
+    private WxUserService wxUserService;
     private final WxMpService wxMpService;
 
     /**
@@ -47,7 +50,7 @@ public class WxAuthController {
      */
     @PostMapping("/codeToOpenid")
     @CrossOrigin
-    @ApiOperation(value = "网页登录-code换取openid",notes = "scope为snsapi_base")
+    @ApiOperation(value = "网页登录-code换取openid", notes = "scope为snsapi_base")
     public R codeToOpenid(HttpServletRequest request, HttpServletResponse response,
                           @CookieValue String appid, @RequestBody WxH5OuthrizeForm form) {
         try {
@@ -64,6 +67,22 @@ public class WxAuthController {
         }
     }
 
+    @PostMapping("/leftChance")
+    @CrossOrigin
+    @ApiOperation(value = "OpenApi 额度查询`", notes = "查询额度")
+    public R leftChance(HttpServletRequest request, HttpServletResponse response,
+                        @RequestParam String appid, @RequestParam String openId) {
+        return R.ok().put(wxUserService.leftChance(openId, appid));
+    }
+
+    @PostMapping("/reduceChance")
+    @CrossOrigin
+    @ApiOperation(value = "OpenApi 额度减少`", notes = "扣减额度")
+    public R reduceChance(HttpServletRequest request, HttpServletResponse response,
+                          @RequestParam String appid, @RequestParam String openId) {
+        return R.ok().put(wxUserService.reduceChance(openId, appid));
+    }
+
     /**
      * 使用微信授权code换取用户信息(需scope为 snsapi_userinfo)
      *
@@ -74,18 +93,18 @@ public class WxAuthController {
      */
     @PostMapping("/codeToUserInfo")
     @CrossOrigin
-    @ApiOperation(value = "网页登录-code换取用户信息",notes = "需scope为 snsapi_userinfo")
+    @ApiOperation(value = "网页登录-code换取用户信息", notes = "需scope为 snsapi_userinfo")
     public R codeToUserInfo(HttpServletRequest request, HttpServletResponse response,
-                            @CookieValue String appid,  @RequestBody WxH5OuthrizeForm form) {
+                            @CookieValue String appid, @RequestBody WxH5OuthrizeForm form) {
         try {
             this.wxMpService.switchoverTo(appid);
             WxOAuth2AccessToken token = wxMpService.getOAuth2Service().getAccessToken(form.getCode());
-            WxOAuth2UserInfo userInfo = wxMpService.getOAuth2Service().getUserInfo(token,"zh_CN");
+            WxOAuth2UserInfo userInfo = wxMpService.getOAuth2Service().getUserInfo(token, "zh_CN");
             String openid = userInfo.getOpenid();
             CookieUtil.setCookie(response, "openid", openid, 365 * 24 * 60 * 60);
             String openidToken = MD5Util.getMd5AndSalt(openid);
             CookieUtil.setCookie(response, "openidToken", openidToken, 365 * 24 * 60 * 60);
-            return R.ok().put(new WxUser(userInfo,appid));
+            return R.ok().put(new WxUser(userInfo, appid));
         } catch (WxErrorException e) {
             logger.error("code换取用户信息失败", e);
             return R.error(e.getError().getErrorMsg());
@@ -101,13 +120,13 @@ public class WxAuthController {
      * @return
      */
     @GetMapping("/getShareSignature")
-    @ApiOperation(value = "获取微信分享的签名配置",notes = "微信公众号添加了js安全域名的网站才能加载微信分享")
-    public R getShareSignature(HttpServletRequest request, HttpServletResponse response,@CookieValue String appid) throws WxErrorException {
+    @ApiOperation(value = "获取微信分享的签名配置", notes = "微信公众号添加了js安全域名的网站才能加载微信分享")
+    public R getShareSignature(HttpServletRequest request, HttpServletResponse response, @CookieValue String appid) throws WxErrorException {
         this.wxMpService.switchoverTo(appid);
         // 1.拼接url（当前网页的URL，不包含#及其后面部分）
         String wxShareUrl = request.getHeader(Constant.WX_CLIENT_HREF_HEADER);
         if (!StringUtils.hasText(wxShareUrl)) {
-            return R.error("header中缺少"+Constant.WX_CLIENT_HREF_HEADER+"参数，微信分享加载失败");
+            return R.error("header中缺少" + Constant.WX_CLIENT_HREF_HEADER + "参数，微信分享加载失败");
         }
         wxShareUrl = wxShareUrl.split("#")[0];
         Map<String, String> wxMap = new TreeMap<>();
@@ -131,4 +150,6 @@ public class WxAuthController {
         resMap.put("wxSignature", wxSignature);
         return R.ok().put(resMap);
     }
+
+
 }

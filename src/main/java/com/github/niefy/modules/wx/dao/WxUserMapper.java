@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
 @CacheNamespace(flushInterval = 300000L)//缓存五分钟过期
 public interface WxUserMapper extends BaseMapper<WxUser> {
 
-    void unsubscribe(String openid);
+    void unsubscribe(String openid, String appid);
 }

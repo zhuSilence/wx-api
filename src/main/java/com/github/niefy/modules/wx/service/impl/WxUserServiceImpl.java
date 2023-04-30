@@ -1,5 +1,6 @@
 package com.github.niefy.modules.wx.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -87,7 +88,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     }
 
 	@Override
-	public WxUser updateUserOpenAiCount(String openid,String appid, int count) {
+	public WxUser updateUserOpenAiCount(String openid, String appid, int count) {
 		try {
 			// 获取微信用户基本信息
 			logger.info("更新用户信息，openid={}",openid);
@@ -96,6 +97,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 					.eq(StringUtils.hasText(appid), "appid", appid)
 					.eq(StringUtils.hasText(openid), "openid", openid)
 			);
+			// 初次订阅
 			if (null == wxUser) {
 				WxUser user = new WxUser(openid);
 				user.setAppid(appid);
@@ -120,7 +122,56 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 		return null;
 	}
 
-    /**
+	@Override
+	public WxUser initSubScribe(String openid, String appid) {
+		// 获取微信用户基本信息
+		wxMpService.switchover(appid);
+		WxUser wxUser = this.getOne(new QueryWrapper<WxUser>()
+				.eq(StringUtils.hasText(appid), "appid", appid)
+				.eq(StringUtils.hasText(openid), "openid", openid)
+		);
+		// 初次订阅
+		if (null == wxUser) {
+			WxUser user = new WxUser(openid);
+			user.setAppid(appid);
+			user.setSubscribe(true);
+			user.setSubscribeTime(new Date());
+			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
+			extraInfo.setOpenApiCount(10);
+			user.setExtraInfo(JSONObject.toJSONString(extraInfo));
+			this.saveOrUpdate(user);
+			return user;
+		}
+		// 用户非初次订阅，不初始化额度直接订阅
+		wxUser.setSubscribe(true);
+		this.saveOrUpdate(wxUser);
+		return null;
+	}
+
+	@Override
+	public Integer leftChance(String openid, String appid) {
+		this.wxMpService.switchoverTo(appid);
+		WxUser wxUser = this.getOne(new QueryWrapper<WxUser>()
+				.eq(StringUtils.hasText(appid), "appid", appid)
+				.eq(StringUtils.hasText(openid), "openid", openid));
+
+		int leftChance = 0;
+		if (null != wxUser) {
+			WxUser.ExtraInfo extraInfo = JSON.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
+			leftChance = extraInfo.getOpenApiCount();
+		}
+		return Math.max(leftChance, 0);
+	}
+
+	@Override
+	public Integer reduceChance(String openid, String appid) {
+		Integer leftChance = this.leftChance(openid, appid);
+		int newCount = leftChance - 1;
+		this.updateUserOpenAiCount(openid, appid, newCount);
+		return newCount;
+	}
+
+	/**
 	 * 异步批量同步用户信息
 	 * @param openidList
 	 */
@@ -149,8 +200,8 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     }
 
     @Override
-    public void unsubscribe(String openid) {
-        userMapper.unsubscribe(openid);
+    public void unsubscribe(String openid, String appid) {
+        userMapper.unsubscribe(openid, appid);
     }
 
     /**
