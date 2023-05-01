@@ -55,7 +55,9 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
             if (rules.isEmpty()) {
                 return this.replyText(toUser, fromUser, "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
             }
-            return this.reply(toUser, fromUser, rules.get(0).getReplyType(), rules.get(0).getReplyContent());
+            //替换关注回复中的 ${openId}
+            String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", toUser);
+            return this.reply(toUser, fromUser, rules.get(0).getReplyType(), replyContent);
         } catch (Exception e) {
             log.error("自动回复出错：", e);
         }
