@@ -9,4 +9,8 @@ public class ConfigConstant {
      * 云存储配置KEY
      */
     public final static String CLOUD_STORAGE_CONFIG_KEY = "CLOUD_STORAGE_CONFIG_KEY";
+
+    public final static String PLAN_SETTING_JSON = "plan_setting_json";
+
+    public final static String SUBSCRIBE_INIT_COUNT = "subscribe_init_count";
 }
