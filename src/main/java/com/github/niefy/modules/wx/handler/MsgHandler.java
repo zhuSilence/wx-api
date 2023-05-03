@@ -62,15 +62,18 @@ public class MsgHandler extends AbstractHandler {
             String[] split = textContent.split("@");
             //额度充值@o7PL_v6rWmB4CR14PkMBNVrJzBlY@planA
             if (split.length == 3) {
-                String openId = split[1];
-                SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.PLAN_SETTING_JSON);
-                List<PlanDTO> planDTOS = JSON.parseArray(sysConfig.getParamValue(), PlanDTO.class);
-                List<PlanDTO> collect = planDTOS.stream().filter(planDTO -> planDTO.getKey().equalsIgnoreCase(split[2])).collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(collect)) {
-                    PlanDTO planDTO = collect.get(0);
-                    Integer count = planDTO.getCount();
-                    wxUserService.updateUserOpenAiCount(openId, appid, count);
-                    logger.info("[额度充值]openId:{}", openId + ",count:" + count);
+                String openId = split[1].trim();
+                String plan = split[2].trim();
+                if (openId.length() > 0 && plan.length() > 0) {
+                    SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.PLAN_SETTING_JSON);
+                    List<PlanDTO> planDTOS = JSON.parseArray(sysConfig.getParamValue(), PlanDTO.class);
+                    List<PlanDTO> collect = planDTOS.stream().filter(planDTO -> planDTO.getKey().equalsIgnoreCase(plan)).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(collect)) {
+                        PlanDTO planDTO = collect.get(0);
+                        Integer count = planDTO.getCount();
+                        wxUserService.updateUserOpenAiCount(openId, appid, count);
+                        logger.info("[额度充值]openId:{}", openId + ",count:" + count);
+                    }
                 }
             }
         }
