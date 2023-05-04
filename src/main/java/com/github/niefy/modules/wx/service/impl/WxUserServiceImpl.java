@@ -111,8 +111,8 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			} else {
 				WxUser.ExtraInfo newExtraInfo = JSONObject.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
 				wxUser.setSubscribe(true);
-				int newCount = Math.max(0, newExtraInfo.getOpenApiCount()) + count;
-				newExtraInfo.setOpenApiCount(newCount);
+//				int newCount = Math.max(0, newExtraInfo.getOpenApiCount()) + count;
+				newExtraInfo.setOpenApiCount(count);
 				wxUser.setExtraInfo(JSONObject.toJSONString(newExtraInfo));
 				this.saveOrUpdate(wxUser);
 				return wxUser;
