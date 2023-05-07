@@ -40,6 +40,7 @@ public class ChargeHandler implements MessageHandler {
 
     @Override
     public WxMpXmlOutMessage handle(RequestContext requestContext) throws WxErrorException {
+        logger.info("process in messageHandler chargeHandler...");
         if ("o7PL_v6rWmB4CR14PkMBNVrJzBlY".equalsIgnoreCase(requestContext.getFromUser())
                 && requestContext.getRequestContent().startsWith("额度充值")) {
             String[] split = requestContext.getRequestContent().split("@");

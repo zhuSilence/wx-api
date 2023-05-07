@@ -35,6 +35,7 @@ public class LeftChanceHandler implements MessageHandler {
 
     @Override
     public WxMpXmlOutMessage handle(RequestContext requestContext) throws WxErrorException {
+        logger.info("process in messageHandler leftChanceHandler...");
         if (requestContext.getRequestContent().startsWith("额度查询")) {
             WxUser wxUser = wxUserService.getOne(new QueryWrapper<WxUser>()
                     .eq(StringUtils.hasText(requestContext.getAppId()), "appid", requestContext.getAppId())
@@ -44,6 +45,7 @@ public class LeftChanceHandler implements MessageHandler {
                 logger.error("[额度查询]openId:{} 用户不存在", requestContext.getFromUser());
                 requestContext.setRequestContent("用户不存在");
             } else {
+                requestContext.setExactMatch(true);
                 List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(requestContext.getAppId(), requestContext.isExactMatch(), requestContext.getRequestContent());
                 if (rules.isEmpty()) {
                     return msgReplyDefaultService.replyText(requestContext.getToUser(), requestContext.getFromUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
