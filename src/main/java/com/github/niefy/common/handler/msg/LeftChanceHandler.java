@@ -46,7 +46,6 @@ public class LeftChanceHandler implements MessageHandler {
                     logger.error("[额度查询]openId:{} 用户不存在", requestContext.getFromUser());
                     requestContext.setRequestContent("用户不存在");
                 } else {
-                    logger.info("in...");
                     requestContext.setExactMatch(true);
                     List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(requestContext.getAppId(), requestContext.isExactMatch(), requestContext.getRequestContent());
                     if (rules.isEmpty()) {

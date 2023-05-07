@@ -5,7 +5,6 @@ import com.github.niefy.common.handler.msg.MessageHandlerChain;
 import com.github.niefy.common.handler.msg.RequestContext;
 import com.github.niefy.modules.wx.service.MsgReplyDefaultService;
 import com.github.niefy.modules.wx.service.MsgReplyService;
-import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -35,7 +34,7 @@ public class MsgHandler extends AbstractHandler {
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                     Map<String, Object> context, WxMpService wxMpService,
-                                    WxSessionManager sessionManager) throws WxErrorException {
+                                    WxSessionManager sessionManager) {
 
         String textContent = wxMessage.getContent();
         String fromUser = wxMessage.getFromUser();

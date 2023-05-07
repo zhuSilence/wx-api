@@ -75,7 +75,7 @@ public class ChargeHandler implements MessageHandler {
                 }
                 return msgReplyDefaultService.tryAutoReply(requestContext);
             } else if (messageHandler != null) {
-                messageHandler.handle(requestContext);
+                return messageHandler.handle(requestContext);
             }
         } catch (Exception e) {
             e.printStackTrace();

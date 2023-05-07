@@ -1,6 +1,5 @@
 package com.github.niefy.common.handler.msg;
 
-import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ public class MessageHandlerChain {
      *
      * @param request
      */
-    public WxMpXmlOutMessage handleRequest(RequestContext request) throws WxErrorException {
+    public WxMpXmlOutMessage handleRequest(RequestContext request) {
         if (messageHandlerList != null && messageHandlerList.size() > 0) {
             return messageHandlerList.get(0).handle(request);
         }
