@@ -11,6 +11,8 @@ src/main/resources/static/
 .project
 # Log file
 *.log
+nohup.out
+src/main/resources/application-*
 
 # BlueJ files
 *.ctxt
