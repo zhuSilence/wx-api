@@ -53,7 +53,7 @@ public class SubscribeHandler extends AbstractHandler {
             return msgReplyDefaultService.replyText(requestContext.getToUser(), requestContext.getFromUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
         }
         requestContext.setReplyType(rules.get(0).getReplyType());
-        String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", requestContext.getToUser());
+        String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", requestContext.getFromUser());
         requestContext.setResponseContent(replyContent);
         return msgReplyDefaultService.tryAutoReply(requestContext);
     }
