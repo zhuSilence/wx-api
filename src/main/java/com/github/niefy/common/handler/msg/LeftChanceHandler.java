@@ -46,16 +46,19 @@ public class LeftChanceHandler implements MessageHandler {
                     logger.error("[额度查询]openId:{} 用户不存在", requestContext.getFromUser());
                     requestContext.setRequestContent("用户不存在");
                 } else {
+                    logger.info("in...");
                     requestContext.setExactMatch(true);
                     List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(requestContext.getAppId(), requestContext.isExactMatch(), requestContext.getRequestContent());
                     if (rules.isEmpty()) {
                         return msgReplyDefaultService.replyText(requestContext.getToUser(), requestContext.getFromUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
                     }
+                    logger.info("in...rules:{}", JSON.toJSONString(rules));
                     WxUser.ExtraInfo newExtraInfo = JSONObject.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
                     //替换关注回复中的内容
                     String replyContent = rules.get(0).getReplyContent().replace("${OPEN_AI_COUNT}", String.valueOf(newExtraInfo.getOpenApiCount()));
                     requestContext.setReplyType(rules.get(0).getReplyType());
                     requestContext.setResponseContent(replyContent);
+                    logger.info("in...requestContext:{}", JSON.toJSONString(requestContext));
                     return msgReplyDefaultService.reply(requestContext.getToUser(), requestContext.getFromUser(), requestContext.getReplyType(), requestContext.getResponseContent());
                 }
                 return msgReplyDefaultService.tryAutoReply(requestContext);
