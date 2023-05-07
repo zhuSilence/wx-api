@@ -1,6 +1,7 @@
 package com.github.niefy.modules.wx.handler;
 
 
+import com.alibaba.fastjson.JSON;
 import com.github.niefy.common.handler.msg.MessageHandlerChain;
 import com.github.niefy.common.handler.msg.RequestContext;
 import com.github.niefy.modules.wx.service.MsgReplyDefaultService;
@@ -46,10 +47,13 @@ public class MsgHandler extends AbstractHandler {
                 .fromUser(fromUser)
                 .toUser(toUser)
                 .requestContent(textContent).build();
+        logger.info("message handle requestContext is {}" + JSON.toJSONString(requestContext));
         WxMpXmlOutMessage wxMpXmlOutMessage = messageHandlerChain.handleRequest(requestContext);
         if (null == wxMpXmlOutMessage) {
+            logger.info("message handle...");
             wxMpXmlOutMessage = msgReplyDefaultService.tryAutoReply(requestContext);
         }
+        logger.info("message handle wxMpXmlOutMessage is {}" + JSON.toJSONString(wxMpXmlOutMessage.toXml()));
         return wxMpXmlOutMessage;
     }
 
