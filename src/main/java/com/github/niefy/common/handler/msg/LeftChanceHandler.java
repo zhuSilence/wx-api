@@ -58,7 +58,6 @@ public class LeftChanceHandler implements MessageHandler {
                     requestContext.setReplyType(rules.get(0).getReplyType());
                     requestContext.setResponseContent(replyContent);
                     logger.info("in...requestContext:{}", JSON.toJSONString(requestContext));
-                    return msgReplyDefaultService.reply(requestContext.getToUser(), requestContext.getFromUser(), requestContext.getReplyType(), requestContext.getResponseContent());
                 }
                 return msgReplyDefaultService.tryAutoReply(requestContext);
             } else if (null != messageHandler) {

@@ -56,8 +56,6 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
                 requestContext.setReplyType(rules.get(0).getReplyType());
                 requestContext.setResponseContent(rules.get(0).getReplyContent());
             }
-            //替换关注回复中的 ${openId}
-            //String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", requestContext.getToUser());
             return this.reply(requestContext.getFromUser(), requestContext.getToUser(), requestContext.getReplyType(), requestContext.getResponseContent());
         } catch (Exception e) {
             log.error("自动回复出错：", e);
