@@ -1,5 +1,6 @@
 package com.github.niefy.modules.wx.service;
 
+import com.github.niefy.common.handler.msg.RequestContext;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
@@ -24,7 +25,7 @@ public interface MsgReplyDefaultService {
      * @param keywords   匹配关键词
      * @return 是否已自动回复，无匹配规则则不自动回复
      */
-    WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String fromUser, String keywords);
+    WxMpXmlOutMessage tryAutoReply(RequestContext requestContext);
 
     default WxMpXmlOutMessage reply(String toUser, String fromUser, String replyType, String replyContent){
         try {

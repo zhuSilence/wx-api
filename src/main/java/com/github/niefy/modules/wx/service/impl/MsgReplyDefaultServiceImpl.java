@@ -2,6 +2,7 @@ package com.github.niefy.modules.wx.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.niefy.common.handler.msg.RequestContext;
 import com.github.niefy.modules.wx.entity.MsgReplyRule;
 import com.github.niefy.modules.wx.entity.WxMsg;
 import com.github.niefy.modules.wx.service.MsgReplyDefaultService;
@@ -15,6 +16,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.kefu.WxMpKefuMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,9 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 微信公众号消息处理
- * 官方文档：https://developers.weixin.qq.com/doc/offiaccount/Message_Ma nagement/Service_Center_messages.html#7
- * 参考WxJava客服消息文档：https://github.com/Wechat-Group/WxJava/wiki/MP_主动发送消息（客服消息）
+ * 微信公众号消息处理 被动回复接口
  */
 @Service
 @RequiredArgsConstructor
@@ -42,22 +42,23 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
     /**
      * 根据规则配置通过普通消息接口自动回复消息
      *
-     * @param appid      公众号appid
-     * @param exactMatch 是否精确匹配
-     * @param toUser     用户openid
-     * @param keywords   匹配关键词
+     * @param requestContext 请求参数
      * @return 是否已自动回复，无匹配规则则不自动回复
      */
     @Override
-    public WxMpXmlOutMessage tryAutoReply(String appid, boolean exactMatch, String toUser, String fromUser, String keywords) {
+    public WxMpXmlOutMessage tryAutoReply(RequestContext requestContext) {
         try {
-            List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(appid, exactMatch, keywords);
-            if (rules.isEmpty()) {
-                return this.replyText(toUser, fromUser, "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
+            if (StringUtils.isEmpty(requestContext.getResponseContent())) {
+                List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(requestContext.getAppId(), requestContext.isExactMatch(), requestContext.getRequestContent());
+                if (rules.isEmpty()) {
+                    return this.replyText(requestContext.getToUser(), requestContext.getFromUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
+                }
+                requestContext.setReplyType(rules.get(0).getReplyType());
+                requestContext.setResponseContent(rules.get(0).getReplyContent());
             }
             //替换关注回复中的 ${openId}
-            String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", toUser);
-            return this.reply(toUser, fromUser, rules.get(0).getReplyType(), replyContent);
+            //String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", requestContext.getToUser());
+            return this.reply(requestContext.getToUser(), requestContext.getFromUser(), requestContext.getReplyType(), requestContext.getResponseContent());
         } catch (Exception e) {
             log.error("自动回复出错：", e);
         }
