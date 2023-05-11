@@ -5,8 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.niefy.common.utils.ConfigConstant;
 import com.github.niefy.common.utils.Query;
 import com.github.niefy.config.TaskExcutor;
+import com.github.niefy.modules.sys.entity.SysConfigEntity;
+import com.github.niefy.modules.sys.service.SysConfigService;
 import com.github.niefy.modules.wx.dao.WxUserMapper;
 import com.github.niefy.modules.wx.entity.WxUser;
 import com.github.niefy.modules.wx.service.WxUserService;
@@ -39,6 +42,9 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     private WxUserMapper userMapper;
 	@Autowired
 	private WxMpService wxMpService;
+
+	@Autowired
+	private SysConfigService sysConfigService;
     private volatile static  boolean syncWxUserTaskRunning=false;
 
     @Override
@@ -138,7 +144,12 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			user.setSubscribe(true);
 			user.setSubscribeTime(new Date());
 			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
-			extraInfo.setOpenApiCount(10);
+			SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
+			if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
+				extraInfo.setOpenApiCount(Integer.parseInt(sysConfig.getParamValue()));
+			} else {
+				extraInfo.setOpenApiCount(10);
+			}
 			user.setExtraInfo(JSONObject.toJSONString(extraInfo));
 			this.saveOrUpdate(user);
 			return user;
