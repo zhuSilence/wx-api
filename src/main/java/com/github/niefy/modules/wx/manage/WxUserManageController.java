@@ -1,13 +1,16 @@
 package com.github.niefy.modules.wx.manage;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.niefy.common.utils.PageUtils;
 import com.github.niefy.common.utils.R;
+import com.github.niefy.modules.wx.dto.RequestDTO;
 import com.github.niefy.modules.wx.entity.WxUser;
 import com.github.niefy.modules.wx.service.WxUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -61,8 +64,9 @@ public class WxUserManageController {
     @RequiresPermissions("wx:wxuser:info")
     @ApiOperation(value = "详情")
     public R info(@CookieValue String appid,@PathVariable("openid") String openid) {
-        WxUser wxUser = userService.getById(openid);
-
+        WxUser wxUser = userService.getOne(new QueryWrapper<WxUser>()
+                .eq(StringUtils.hasText(appid), "appid", appid)
+                .eq(StringUtils.hasText(openid), "openid", openid));
         return R.ok().put("wxUser", wxUser);
     }
 
@@ -89,6 +93,16 @@ public class WxUserManageController {
     public R delete(@CookieValue String appid,@RequestBody String[] ids) {
         userService.removeByIds(Arrays.asList(ids));
 
+        return R.ok();
+    }
+
+    @PostMapping("/update")
+    @RequiresPermissions("wx:wxuser:update")
+    @ApiOperation(value = "修改额度")
+    public R update(@CookieValue String appid, @RequestBody RequestDTO requestDTO) {
+        if (null != requestDTO.getId() && null != requestDTO.getCount() && requestDTO.getCount() >= 0) {
+            userService.updateUserOpenAiCount(requestDTO.getId(), appid, requestDTO.getCount());
+        }
         return R.ok();
     }
 
