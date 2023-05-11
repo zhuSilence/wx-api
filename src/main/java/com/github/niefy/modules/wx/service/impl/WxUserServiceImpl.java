@@ -42,7 +42,6 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     private WxUserMapper userMapper;
 	@Autowired
 	private WxMpService wxMpService;
-
 	@Autowired
 	private SysConfigService sysConfigService;
     private volatile static  boolean syncWxUserTaskRunning=false;

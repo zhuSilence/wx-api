@@ -1,6 +1,9 @@
 package com.github.niefy.modules.wx.handler;
 
 import com.github.niefy.common.handler.msg.RequestContext;
+import com.github.niefy.common.utils.ConfigConstant;
+import com.github.niefy.modules.sys.entity.SysConfigEntity;
+import com.github.niefy.modules.sys.service.SysConfigService;
 import com.github.niefy.modules.wx.entity.MsgReplyRule;
 import com.github.niefy.modules.wx.service.MsgReplyDefaultService;
 import com.github.niefy.modules.wx.service.MsgReplyRuleService;
@@ -13,6 +16,7 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.util.WxMpConfigStorageHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class SubscribeHandler extends AbstractHandler {
     MsgReplyRuleService msgReplyRuleService;
     @Autowired
     WxUserService userService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     // todo 订阅的时候增加初始额度，并回复额度赋予成功
     @Override
@@ -54,6 +61,12 @@ public class SubscribeHandler extends AbstractHandler {
         }
         requestContext.setReplyType(rules.get(0).getReplyType());
         String replyContent = rules.get(0).getReplyContent().replace("${OPEN_ID}", requestContext.getFromUser());
+        SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
+        if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
+            replyContent = replyContent.replace("${DEFAULT_COUNT}", sysConfig.getParamValue());
+        } else {
+            replyContent = replyContent.replace("${DEFAULT_COUNT}", "10");
+        }
         requestContext.setResponseContent(replyContent);
         return msgReplyDefaultService.tryAutoReply(requestContext);
     }
