@@ -7,7 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.github.niefy.common.utils.Json;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.springframework.util.StringUtils;
@@ -86,8 +88,12 @@ public class WxUser implements Serializable {
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ExtraInfo{
         // openApi 剩余额度
         private Integer openApiCount;
+        // 绘图额度控制
+        private Integer imageApiCount;
     }
 }

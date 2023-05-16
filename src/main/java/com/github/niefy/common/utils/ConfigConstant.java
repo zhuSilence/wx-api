@@ -13,4 +13,6 @@ public class ConfigConstant {
     public final static String PLAN_SETTING_JSON = "plan_setting_json";
 
     public final static String SUBSCRIBE_INIT_COUNT = "subscribe_init_count";
+    // 图片额度
+    public final static String SUBSCRIBE_INIT_IMG_COUNT = "subscribe_init_img_count";
 }

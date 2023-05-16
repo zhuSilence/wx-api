@@ -100,8 +100,9 @@ public class WxUserManageController {
     @RequiresPermissions("wx:wxuser:update")
     @ApiOperation(value = "修改额度")
     public R update(@CookieValue String appid, @RequestBody RequestDTO requestDTO) {
-        if (null != requestDTO.getId() && null != requestDTO.getCount() && requestDTO.getCount() >= 0) {
-            userService.updateUserOpenAiCount(requestDTO.getId(), appid, requestDTO.getCount());
+        if (null != requestDTO.getId()) {
+            WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(requestDTO.getCount(), requestDTO.getImgCount());
+            userService.updateUserOpenAiCount(requestDTO.getId(), appid, extraInfo);
         }
         return R.ok();
     }

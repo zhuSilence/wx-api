@@ -30,7 +30,7 @@ public interface WxUserService extends IService<WxUser> {
      * @param count
      * @return
      */
-    WxUser updateUserOpenAiCount(String openid,String appid, int count);
+    WxUser updateUserOpenAiCount(String openid,String appid, WxUser.ExtraInfo extraInfo);
 
     /**
      * 初始订阅时初始化额度
@@ -46,7 +46,7 @@ public interface WxUserService extends IService<WxUser> {
      * @param appid
      * @return
      */
-    Integer leftChance(String openid,String appid);
+    WxUser.ExtraInfo leftChance(String openid,String appid);
 
     /**
      * 降低额度
@@ -54,7 +54,7 @@ public interface WxUserService extends IService<WxUser> {
      * @param appid
      * @return
      */
-    Integer reduceChance(String openid,String appid);
+    WxUser.ExtraInfo reduceChance(String openid,String appid, String type);
 
     /**
      * 异步批量更新用户信息

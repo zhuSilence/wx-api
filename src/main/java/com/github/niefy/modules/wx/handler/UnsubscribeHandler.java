@@ -35,7 +35,8 @@ public class UnsubscribeHandler extends AbstractHandler {
                         .eq(StringUtils.hasText(appid), "appid", appid)
                         .eq(StringUtils.hasText(openid), "openid", openid));
         if (null != wxUser) {
-            userService.updateUserOpenAiCount(openid, appid, 0);
+            WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(0, 0);
+            userService.updateUserOpenAiCount(openid, appid, extraInfo);
             userService.unsubscribe(openid, appid);
         }
 

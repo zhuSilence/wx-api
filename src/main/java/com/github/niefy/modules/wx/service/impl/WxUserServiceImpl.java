@@ -93,7 +93,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
     }
 
 	@Override
-	public WxUser updateUserOpenAiCount(String openid, String appid, int count) {
+	public WxUser updateUserOpenAiCount(String openid, String appid, WxUser.ExtraInfo extra) {
 		try {
 			// 获取微信用户基本信息
 			logger.info("更新用户信息，openid={}",openid);
@@ -109,15 +109,20 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 				user.setSubscribe(true);
 				user.setSubscribeTime(new Date());
 				WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
-				extraInfo.setOpenApiCount(count);
+				extraInfo.setOpenApiCount(extra.getOpenApiCount());
+				extraInfo.setImageApiCount(extra.getImageApiCount());
 				user.setExtraInfo(JSONObject.toJSONString(extraInfo));
 				this.saveOrUpdate(user);
 				return user;
 			} else {
 				WxUser.ExtraInfo newExtraInfo = JSONObject.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
 				wxUser.setSubscribe(true);
-//				int newCount = Math.max(0, newExtraInfo.getOpenApiCount()) + count;
-				newExtraInfo.setOpenApiCount(count);
+				if (null != extra.getOpenApiCount() && extra.getOpenApiCount() >= 0) {
+					newExtraInfo.setOpenApiCount(extra.getOpenApiCount());
+				}
+				if (null != extra.getImageApiCount() && extra.getImageApiCount() >= 0) {
+					newExtraInfo.setImageApiCount(extra.getImageApiCount());
+				}
 				wxUser.setExtraInfo(JSONObject.toJSONString(newExtraInfo));
 				this.saveOrUpdate(wxUser);
 				return wxUser;
@@ -142,12 +147,14 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			user.setAppid(appid);
 			user.setSubscribe(true);
 			user.setSubscribeTime(new Date());
-			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
+			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 10);
 			SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
 			if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
 				extraInfo.setOpenApiCount(Integer.parseInt(sysConfig.getParamValue()));
-			} else {
-				extraInfo.setOpenApiCount(10);
+			}
+			SysConfigEntity imgSysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_IMG_COUNT);
+			if (null != imgSysConfig && StringUtils.hasText(imgSysConfig.getParamValue())) {
+				extraInfo.setImageApiCount(Integer.parseInt(imgSysConfig.getParamValue()));
 			}
 			user.setExtraInfo(JSONObject.toJSONString(extraInfo));
 			this.saveOrUpdate(user);
@@ -160,26 +167,28 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 	}
 
 	@Override
-	public Integer leftChance(String openid, String appid) {
+	public WxUser.ExtraInfo leftChance(String openid, String appid) {
 		this.wxMpService.switchoverTo(appid);
 		WxUser wxUser = this.getOne(new QueryWrapper<WxUser>()
 				.eq(StringUtils.hasText(appid), "appid", appid)
 				.eq(StringUtils.hasText(openid), "openid", openid));
 
-		int leftChance = 0;
 		if (null != wxUser) {
-			WxUser.ExtraInfo extraInfo = JSON.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
-			leftChance = extraInfo.getOpenApiCount();
+			return JSON.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
 		}
-		return Math.max(leftChance, 0);
+		return new WxUser.ExtraInfo(0, 0);
 	}
 
 	@Override
-	public Integer reduceChance(String openid, String appid) {
-		Integer leftChance = this.leftChance(openid, appid);
-		int newCount = leftChance - 1;
-		this.updateUserOpenAiCount(openid, appid, newCount);
-		return newCount;
+	public WxUser.ExtraInfo reduceChance(String openid, String appid, String type) {
+		WxUser.ExtraInfo extraInfo = this.leftChance(openid, appid);
+		if ("img".equalsIgnoreCase(type)) {
+			extraInfo.setImageApiCount(extraInfo.getImageApiCount() - 1);
+		} else {
+			extraInfo.setOpenApiCount(extraInfo.getOpenApiCount() - 1);
+		}
+		this.updateUserOpenAiCount(openid, appid, extraInfo);
+		return extraInfo;
 	}
 
 	/**
