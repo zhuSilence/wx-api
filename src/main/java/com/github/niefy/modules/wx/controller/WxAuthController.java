@@ -79,8 +79,8 @@ public class WxAuthController {
     @CrossOrigin
     @ApiOperation(value = "OpenApi 额度减少`", notes = "扣减额度")
     public R reduceChance(HttpServletRequest request, HttpServletResponse response,
-                          @RequestParam String appid, @RequestParam String openId, @RequestParam(required = false) String type) {
-        return R.ok().put(wxUserService.reduceChance(openId, appid, type));
+                          @RequestParam String appid, @RequestParam String openId) {
+        return R.ok().put(wxUserService.reduceChance(openId, appid));
     }
 
     /**

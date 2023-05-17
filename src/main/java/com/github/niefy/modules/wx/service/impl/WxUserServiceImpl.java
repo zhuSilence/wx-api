@@ -147,7 +147,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			user.setAppid(appid);
 			user.setSubscribe(true);
 			user.setSubscribeTime(new Date());
-			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 10);
+			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 0);
 			SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
 			if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
 				extraInfo.setOpenApiCount(Integer.parseInt(sysConfig.getParamValue()));
@@ -180,13 +180,9 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 	}
 
 	@Override
-	public WxUser.ExtraInfo reduceChance(String openid, String appid, String type) {
+	public WxUser.ExtraInfo reduceChance(String openid, String appid) {
 		WxUser.ExtraInfo extraInfo = this.leftChance(openid, appid);
-		if ("img".equalsIgnoreCase(type)) {
-			extraInfo.setImageApiCount(extraInfo.getImageApiCount() - 1);
-		} else {
-			extraInfo.setOpenApiCount(extraInfo.getOpenApiCount() - 1);
-		}
+		extraInfo.setOpenApiCount(extraInfo.getOpenApiCount() - 1);
 		this.updateUserOpenAiCount(openid, appid, extraInfo);
 		return extraInfo;
 	}

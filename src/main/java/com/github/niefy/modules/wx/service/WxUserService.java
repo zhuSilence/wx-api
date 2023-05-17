@@ -54,7 +54,7 @@ public interface WxUserService extends IService<WxUser> {
      * @param appid
      * @return
      */
-    WxUser.ExtraInfo reduceChance(String openid,String appid, String type);
+    WxUser.ExtraInfo reduceChance(String openid,String appid);
 
     /**
      * 异步批量更新用户信息
