@@ -108,6 +108,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 				user.setAppid(appid);
 				user.setSubscribe(true);
 				user.setSubscribeTime(new Date());
+				user.setUpdateTime(new Date());
 				WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
 				extraInfo.setOpenApiCount(extra.getOpenApiCount());
 				extraInfo.setImageApiCount(extra.getImageApiCount());
@@ -124,6 +125,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 					newExtraInfo.setImageApiCount(extra.getImageApiCount());
 				}
 				wxUser.setExtraInfo(JSONObject.toJSONString(newExtraInfo));
+				wxUser.setUpdateTime(new Date());
 				this.saveOrUpdate(wxUser);
 				return wxUser;
 			}
@@ -147,6 +149,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			user.setAppid(appid);
 			user.setSubscribe(true);
 			user.setSubscribeTime(new Date());
+			user.setUpdateTime(new Date());
 			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 0);
 			SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
 			if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
@@ -162,6 +165,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 		}
 		// 用户非初次订阅，不初始化额度直接订阅
 		wxUser.setSubscribe(true);
+		wxUser.setUpdateTime(new Date());
 		this.saveOrUpdate(wxUser);
 		return null;
 	}

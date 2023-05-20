@@ -51,7 +51,7 @@ public class MsgReplyDefaultServiceImpl implements MsgReplyDefaultService {
             if (StringUtils.isEmpty(requestContext.getResponseContent())) {
                 List<MsgReplyRule> rules = msgReplyRuleService.getMatchedRules(requestContext.getAppId(), requestContext.isExactMatch(), requestContext.getRequestContent());
                 if (rules.isEmpty()) {
-                    return this.replyText(requestContext.getToUser(), requestContext.getFromUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
+                    return this.replyText(requestContext.getFromUser(), requestContext.getToUser(), "未匹配到关键字，请重新发送或者添加微信：zx1347023180");
                 }
                 requestContext.setReplyType(rules.get(0).getReplyType());
                 requestContext.setResponseContent(rules.get(0).getReplyContent());

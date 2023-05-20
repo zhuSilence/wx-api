@@ -47,6 +47,8 @@ public class WxUser implements Serializable {
 
     private String extraInfo;
 
+    private Date updateTime;
+
     public WxUser() {
     }
 
