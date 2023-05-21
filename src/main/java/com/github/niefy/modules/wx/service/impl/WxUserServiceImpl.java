@@ -55,7 +55,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 		String tagId = (String) params.get("tagid");
 		String qrSceneStr = (String) params.get("qrSceneStr");
         return this.page(
-            new Query<WxUser>().getPage(params),
+            new Query<WxUser>().getPage(params, "update_time", false),
             new QueryWrapper<WxUser>()
 				.eq(StringUtils.hasText(appid), "appid", appid)
                 .eq(StringUtils.hasText(openid), "openid", openid)

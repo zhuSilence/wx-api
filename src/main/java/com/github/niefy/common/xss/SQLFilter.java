@@ -3,11 +3,20 @@ package com.github.niefy.common.xss;
 import com.github.niefy.common.exception.RRException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * SQL过滤
  * @author Mark sunlightcs@gmail.com
  */
 public class SQLFilter {
+
+    private static final Set<String> WHITE_FIELD_SET = new HashSet<>();
+
+    static {
+        WHITE_FIELD_SET.add("update_time");
+    }
 
     /**
      * SQL注入过滤
@@ -16,6 +25,9 @@ public class SQLFilter {
     public static String sqlInject(String str) {
         if (StringUtils.isBlank(str)) {
             return null;
+        }
+        if (WHITE_FIELD_SET.contains(str)) {
+            return str;
         }
         //去掉'|"|;|\字符
         str = StringUtils.replace(str, "'", "");
