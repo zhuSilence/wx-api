@@ -14,5 +14,6 @@ public class RequestDTO {
     private String id;
     private Integer count;
     private Integer imgCount;
+    private int enableGpt4;
     private Long t;
 }

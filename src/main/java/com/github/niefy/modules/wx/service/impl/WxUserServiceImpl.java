@@ -112,6 +112,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 				WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo();
 				extraInfo.setOpenApiCount(extra.getOpenApiCount());
 				extraInfo.setImageApiCount(extra.getImageApiCount());
+				extraInfo.setEnableGpt4(extra.getEnableGpt4());
 				user.setExtraInfo(JSONObject.toJSONString(extraInfo));
 				this.saveOrUpdate(user);
 				return user;
@@ -123,6 +124,9 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 				}
 				if (null != extra.getImageApiCount() && extra.getImageApiCount() >= 0) {
 					newExtraInfo.setImageApiCount(extra.getImageApiCount());
+				}
+				if (extra.getEnableGpt4() >= 0) {
+					newExtraInfo.setEnableGpt4(extra.getEnableGpt4());
 				}
 				wxUser.setExtraInfo(JSONObject.toJSONString(newExtraInfo));
 				wxUser.setUpdateTime(new Date());
@@ -150,7 +154,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 			user.setSubscribe(true);
 			user.setSubscribeTime(new Date());
 			user.setUpdateTime(new Date());
-			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 0);
+			WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(10, 0, 0);
 			SysConfigEntity sysConfig = sysConfigService.getSysConfig(ConfigConstant.SUBSCRIBE_INIT_COUNT);
 			if (null != sysConfig && StringUtils.hasText(sysConfig.getParamValue())) {
 				extraInfo.setOpenApiCount(Integer.parseInt(sysConfig.getParamValue()));
@@ -180,7 +184,7 @@ public class WxUserServiceImpl extends ServiceImpl<WxUserMapper, WxUser> impleme
 		if (null != wxUser) {
 			return JSON.parseObject(wxUser.getExtraInfo(), WxUser.ExtraInfo.class);
 		}
-		return new WxUser.ExtraInfo(0, 0);
+		return new WxUser.ExtraInfo(0, 0, 0);
 	}
 
 	@Override

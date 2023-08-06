@@ -101,7 +101,7 @@ public class WxUserManageController {
     @ApiOperation(value = "修改额度")
     public R update(@CookieValue String appid, @RequestBody RequestDTO requestDTO) {
         if (null != requestDTO.getId()) {
-            WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(requestDTO.getCount(), requestDTO.getImgCount());
+            WxUser.ExtraInfo extraInfo = new WxUser.ExtraInfo(requestDTO.getCount(), requestDTO.getImgCount(), requestDTO.getEnableGpt4());
             userService.updateUserOpenAiCount(requestDTO.getId(), appid, extraInfo);
         }
         return R.ok();

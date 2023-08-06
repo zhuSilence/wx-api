@@ -97,5 +97,7 @@ public class WxUser implements Serializable {
         private Integer openApiCount;
         // 绘图额度控制
         private Integer imageApiCount;
+        // 是否支持 GPT4 能力
+        private int enableGpt4 = 0;
     }
 }
